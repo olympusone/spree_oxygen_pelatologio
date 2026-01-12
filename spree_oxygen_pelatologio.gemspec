@@ -8,21 +8,32 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_oxygen_pelatologio'
   s.version     = SpreeOxygenPelatologio::VERSION
-  s.summary     = "Spree Commerce Oxygen pelatologio Extension"
+  s.summary     = 'Spree Commerce Oxygen Pelatologio Extension'
+  s.description = 'Adds the ability to sync Oxygen Pelatologio data to Spree stores.'
+
   s.required_ruby_version = '>= 3.0'
 
-  s.author    = 'You'
-  s.email     = 'you@example.com'
-  s.homepage  = 'https://github.com/your-github-handle/spree_oxygen_pelatologio'
-  s.license = 'AGPL-3.0-or-later'
+  s.author    = 'OlympusOne'
+  s.email     = 'info@olympusone.com'
+  s.homepage  = 'https://github.com/olympusone/spree_oxygen_pelatologio'
+  s.license   = 'AGPL-3.0-or-later'
+
+  s.metadata = {
+    "bug_tracker_uri"   => "#{s.homepage}/issues",
+    "changelog_uri"     => "#{s.homepage}/releases/tag/v#{s.version}",
+    "documentation_uri" => s.homepage,
+    "homepage_uri"      => s.homepage,
+    "source_code_uri"   => "#{s.homepage}/tree/v#{s.version}",
+  }
 
   s.files        = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE.md", "Rakefile", "README.md"].reject { |f| f.match(/^spec/) && !f.match(/^spec\/fixtures/) }
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  s.add_dependency 'spree', '>= 5.2.5'
-  s.add_dependency 'spree_storefront', '>= 5.2.5'
-  s.add_dependency 'spree_admin', '>= 5.2.5'
+  spree_version = '>= 5.2.5'
+  s.add_dependency 'spree', spree_version
+  s.add_dependency 'spree_storefront', spree_version
+  s.add_dependency 'spree_admin', spree_version
   s.add_dependency 'spree_extension'
 
   s.add_development_dependency 'spree_dev_tools'

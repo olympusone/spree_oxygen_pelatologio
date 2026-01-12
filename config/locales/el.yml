@@ -1,9 +1,9 @@
 ---
-en:
+el:
   spree:
     admin:
       integrations:
         oxygen_pelatologio:
           title: Oxygen Pelatologio
-          description: Synchronization with Oxygen Pelatologio services
+          description: Διασύνδεση με τις υπηρεσίες της Oxygen Pelatologio
           api_key: API Key

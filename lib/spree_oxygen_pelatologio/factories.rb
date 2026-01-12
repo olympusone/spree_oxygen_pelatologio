@@ -1,6 +1,7 @@
 FactoryBot.define do
-  # Define your Spree extensions Factories within this file to enable applications, and other extensions to use and override them.
-  #
-  # Example adding this to your spec_helper will load these Factories for use:
-  # require 'spree_oxygen_pelatologio/factories'
+  factory :oxygen_pelatologio_integration, class: Spree::Integrations::EltaCourier do
+    active { true }
+    preferred_api_key { ENV['OXYGEN_PELATOLOGIO_API_KEY'] }
+    store { Spree::Store.default }
+  end
 end

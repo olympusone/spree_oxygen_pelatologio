@@ -1,24 +1,16 @@
-# Spree Oxygen pelatologio
+# Spree Oxygen Pelatologio
 
-This is a Oxygen pelatologio extension for [Spree Commerce](https://spreecommerce.org), an open source e-commerce platform built with Ruby on Rails.
+This is an Oxygen Pelatologio extension for [Spree Commerce](https://spreecommerce.org), an open‑source e-commerce platform built with Ruby on Rails. It adds the ability to sync Oxygen Pelatologio data.
+
+[![Gem Version](https://badge.fury.io/rb/spree_oxygen_pelatologio.svg)](https://badge.fury.io/rb/spree_oxygen_pelatologio)
 
 ## Installation
 
 1. Add this extension to your Gemfile with this line:
 
-    ```ruby
+    ```bash
     bundle add spree_oxygen_pelatologio
     ```
-
-2. Run the install generator
-
-    ```ruby
-    bundle exec rails g spree_oxygen_pelatologio:install
-    ```
-
-3. Restart your server
-
-  If your server was running, restart it so that it can find the assets properly.
 
 ## Developing
 
@@ -30,6 +22,7 @@ This is a Oxygen pelatologio extension for [Spree Commerce](https://spreecommerc
     ```
 
 2. Add your new code
+
 3. Run tests
 
     ```bash
@@ -45,7 +38,7 @@ require 'spree_oxygen_pelatologio/factories'
 
 ## Releasing a new version
 
-```shell
+```bash
 bundle exec gem bump -p -t
 bundle exec gem release
 ```
@@ -57,3 +50,5 @@ For more options please see [gem-release README](https://github.com/svenfuchs/ge
 If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
+
+Copyright (c) 2026 OlympusOne, released under the AGPL-3.0 or later.
