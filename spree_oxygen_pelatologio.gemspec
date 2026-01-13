@@ -36,5 +36,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'spree_admin', spree_version
   s.add_dependency 'spree_extension'
 
+  s.add_dependency 'sidekiq-cron', '~> 2.3'
+
   s.add_development_dependency 'spree_dev_tools'
 end
