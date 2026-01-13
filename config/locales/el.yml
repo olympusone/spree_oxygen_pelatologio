@@ -7,3 +7,4 @@ el:
           title: Oxygen Pelatologio
           description: Διασύνδεση με τις υπηρεσίες της Oxygen Pelatologio
           api_key: API Key
+          environment: Περιβάλλον

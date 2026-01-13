@@ -7,3 +7,4 @@ en:
           title: Oxygen Pelatologio
           description: Synchronization with Oxygen Pelatologio services
           api_key: API Key
+          environment: Environment
