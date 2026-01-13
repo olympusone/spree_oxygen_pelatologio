@@ -14,7 +14,6 @@ module SpreeOxygenPelatologio
 
     private
 
-    # TODO: test this method
     def update_product(data)
       sku = data['code']
       return if sku.blank?
