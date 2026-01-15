@@ -51,4 +51,4 @@ If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2026 OlympusOne, released under the AGPL-3.0 or later.
+Copyright (c) 2026 OlympusOne, released under the MIT License.
