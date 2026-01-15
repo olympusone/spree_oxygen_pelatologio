@@ -1,4 +1,4 @@
-# GNU Affero General Public License
+# AGPL-3.0 License
 
 Copyright (c) 2026 OlympusOne. All rights reserved.
 
