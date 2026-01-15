@@ -11,6 +11,6 @@ if (typeof window.Stimulus === "undefined") {
   application = window.Stimulus
 }
 
-import SpreeOxygenPelatologioController from 'spree_oxygen_pelatologio/controllers/spree_oxygen_pelatologio_controller' 
+import SpreeOxygenPelatologioController from 'spree_oxygen_pelatologio/controllers/spree_oxygen_pelatologio_controller'
 
-application.register('spree_oxygen_pelatologio', SpreeOxygenPelatologioController)
+application.register('spree-oxygen-pelatologio', SpreeOxygenPelatologioController)

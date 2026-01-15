@@ -18,9 +18,14 @@ module SpreeOxygenPelatologio
       app.config.assets.precompile += %w[spree_oxygen_pelatologio_manifest]
     end
 
-    initializer 'spree_oxygen_pelatologio.importmap', before: 'importmap' do |app|
-      app.config.importmap.paths << root.join('config/importmap.rb')
-      app.config.importmap.cache_sweepers << root.join('app/javascript')
+    initializer 'spree_oxygen_pelatologio.importmap', after: 'spree.admin.importmap' do |app|
+      app.config.spree_admin.importmap.draw(root.join('config/importmap.rb'))
+    end
+
+    initializer 'spree_oxygen_pelatologio.cache_sweeper', before: 'spree.admin.importmap.cache_sweeper' do |app|
+      if app.config.importmap.sweep_cache && app.config.reloading_enabled?
+        app.config.spree_admin.cache_sweepers << root.join('app/javascript')
+      end
     end
 
     def self.activate
