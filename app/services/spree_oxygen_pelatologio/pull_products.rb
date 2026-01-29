@@ -14,53 +14,41 @@ module SpreeOxygenPelatologio
 
     private
 
-    # Updates Spree variants based on a single product payload coming from Oxygen.
+    # Updates Spree variants based on a single Oxygen product payload.
     #
     # Payload expectations (partial):
-    # - data['code']                => SKU to identify the Spree::Variant to update
-    # - data['sale_total_amount']   => price (numeric-like string/number)
-    # - data['warehouses']          => array of { 'name' => stock location name, 'quantity' => integer-like }
+    # - data['code']              => SKU used to locate a Spree::Variant
+    # - data['sale_total_amount'] => incoming price (string/number; coerced to Float)
+    # - data['warehouses']        => array of { 'name' => stock location name, 'quantity' => integer-like }
     #
-    # High-level flow:
+    # Variant selection rules:
     #
-    # 1) Identify target variant
-    #    - Read SKU from `data['code']`.
-    #    - If SKU is blank => do nothing (no way to map to a Spree variant).
-    #    - Find `Spree::Variant` by SKU.
-    #    - If no variant exists => do nothing.
+    # 1) Locate variant by SKU (data['code'])
+    #    - Blank SKU => no-op (cannot map).
+    #    - Missing variant => no-op.
     #
-    # 2) Decide which variants to update (master vs non-master)
+    # 2) Decide which variants to update
     #
-    #    A) If the found variant is the MASTER variant:
-    #       - Collect all variants for the product (including master).
-    #       - Select only:
-    #         - the master variant, OR
-    #         - variants whose SKU is blank
-    #       - Update each selected variant with the same incoming data.
+    #    A) Incoming SKU points to the MASTER variant:
+    #       - Update the master variant and any SKU-less variants for the same product.
+    #       - Rationale: treat master SKU as a product-level update and propagate to "follower" variants
+    #         that cannot be addressed by SKU.
     #
-    #       Rationale:
-    #       - When the incoming SKU points at the master, we treat it as a "product-level"
-    #         update and propagate changes to the master and any SKU-less variants that are
-    #         considered to "follow" the master.
+    #    B) Incoming SKU points to a NON-MASTER variant:
+    #       - Update only that variant.
+    #       - Additionally update the master variant only if the master has a blank SKU.
+    #       - Rationale: if the master cannot be addressed by SKU, keep it in sync with sellable variants.
     #
-    #    B) If the found variant is a NON-MASTER variant:
-    #       - Update ONLY that specific variant.
-    #       - Additionally, update the product's master variant only if the master has a blank SKU.
+    # 3) What "update" means (see update_variant)
+    #    - Price:
+    #      - If BOTH `price` and `compare_at_price` are already present => skip price changes entirely
+    #        (we do not override variants already configured in a "sale state").
+    #      - Otherwise, update `price` if the incoming price is valid (> 0) and different.
     #
-    #       Rationale:
-    #       - Variant-specific SKUs represent distinct sellable variants.
-    #       - A master with blank SKU is treated as a "placeholder" that should stay in sync
-    #         with real variants (price/stock), but only when it cannot be independently addressed.
-    #
-    # 3) What "update" means (delegated to `update_variant`)
-    #    - Price: `update_price(variant, data['sale_total_amount'].to_f)`
-    #      - If price unchanged => no-op
-    #      - If new price is lower => set price and keep compare_at_price
-    #      - If new price is higher => set price and clear compare_at_price
-    #
-    #    - Stock: for each warehouse entry
-    #      - Match warehouse name to a Spree stock location name.
-    #      - If a matching stock item exists and qty differs => update stock via `variant.set_stock`.
+    #    - Stock:
+    #      - For each warehouse entry, match by stock_location.name.
+    #      - If a matching stock_item exists and quantity differs, update via `variant.set_stock`.
+    #      - Negative quantities are clamped to 0.
     def update_product(data)
       sku = data['code']
       return if sku.blank?
@@ -70,7 +58,6 @@ module SpreeOxygenPelatologio
 
       if variant.is_master?
         variants = variant.product.variants_including_master.select { |v| v.sku.blank? || v.is_master? }
-
         variants.each { |v| update_variant(v, data) }
       else
         update_variant(variant, data)
@@ -83,12 +70,12 @@ module SpreeOxygenPelatologio
     def update_variant(variant, data)
       update_price(variant, data['sale_total_amount'].to_f)
 
-      # Preload once and build a fast lookup by location name
+      # Preload stock items once and build a lookup keyed by stock location name
       stock_items_by_location_name =
         variant.stock_items.includes(:stock_location).index_by { |si| si.stock_location&.name }
+
       return if stock_items_by_location_name.empty?
 
-      # Update stock
       Array(data['warehouses']).each do |wh|
         location_name = wh['name']
         qty = wh['quantity'].to_i
@@ -96,24 +83,29 @@ module SpreeOxygenPelatologio
         stock_item = stock_items_by_location_name[location_name]
         next unless stock_item && !stock_item.count_on_hand.nil? && stock_item.count_on_hand != qty
 
-        # Ensure no negative stock
+        # Clamp negative quantities to 0
         count_on_hand = qty.negative? ? 0 : qty
+
+        # Update stock for the specific stock location
         variant.set_stock(count_on_hand, nil, stock_item.stock_location)
       end
     end
 
-    # Update variant price based on new price
+    # Updates the variant's price from Oxygen.
     #
-    # If new price is lower, set it as the current price and keep compare_at_price
-    # If new price is higher, set it as the current price and clear compare_at_price
+    # Rules:
+    # - If variant already has BOTH `price` and `compare_at_price`, do nothing.
+    #   (We treat that as manually-configured sale pricing and avoid overriding it.)
+    # - Ignore invalid incoming prices (<= 0). This also prevents blank payloads turning into 0.0 via to_f.
+    # - If price is unchanged, do nothing.
+    # - Otherwise, set the price for the variant currency.
     def update_price(variant, new_price)
+      return if variant.price.present? && variant.compare_at_price.present?
+      return if new_price.nil? || new_price <= 0
+
       return if variant.price.to_f == new_price
 
-      if new_price < variant.price.to_f
-        variant.set_price(variant.currency, new_price, variant.compare_at_price)
-      elsif new_price > variant.price.to_f
-        variant.set_price(variant.currency, new_price)
-      end
+      variant.set_price(variant.currency, new_price)
     end
   end
 end
