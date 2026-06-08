@@ -12,6 +12,12 @@ This is an Oxygen Pelatologio extension for [Spree Commerce](https://spreecommer
     bundle add spree_oxygen_pelatologio
     ```
 
+2. Run the install generator:
+
+    ```bash
+    bundle exec rails g spree_oxygen_pelatologio:install
+    ```
+
 ## Developing
 
 1. Create a dummy app

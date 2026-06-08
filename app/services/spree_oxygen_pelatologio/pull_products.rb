@@ -55,6 +55,7 @@ module SpreeOxygenPelatologio
 
       variant = Spree::Variant.find_by(sku: sku)
       return unless variant
+      return if variant.product.skip_oxygen_sync?
 
       if variant.is_master?
         variants = variant.product.variants_including_master.select { |v| v.sku.blank? || v.is_master? }

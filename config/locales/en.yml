@@ -8,3 +8,6 @@ en:
           description: Synchronization with Oxygen Pelatologio services
           api_key: API Key
           environment: Environment
+      products:
+        oxygen_pelatologio:
+          skip_oxygen_sync: Skip Oxygen Sync

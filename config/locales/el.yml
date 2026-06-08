@@ -8,3 +8,6 @@ el:
           description: Διασύνδεση με τις υπηρεσίες της Oxygen Pelatologio
           api_key: API Key
           environment: Περιβάλλον
+      products:
+        oxygen_pelatologio:
+          skip_oxygen_sync: Παράλειψη Συγχρονισμού Oxygen
